@@ -1,5 +1,10 @@
 const express = require("express");
 const cors = require("cors");
+const {
+    validateCreateRequest,
+    validateId,
+    validateStatus
+} = require('./validation');
 
 // initialise express
 const app = express();
@@ -13,54 +18,44 @@ let current_id = 1;
 
 // create task
 app.post('/', (req, res) => {
-    const { title, description, status, due_date } = req.body;
-
-    if (!title) {
-        return res.status(400).json({ error: 'cannot create task without title'});
-    };
-
-    if (!status) {
-        return res.status(400).json({ error: 'cannot create task without status'});
-    };
-
-    if (!due_date) {
-        return res.status(400).json({ error: 'cannot create task without due date'});
-    };
+    const payload = validateCreateRequest(req, res);
+    if (!payload) return;
 
     const new_task = {
-        title,
-        description: description || "",
-        status,
-        due_date,
+        ...payload,
         id: current_id++
     };
 
     tasks.push(new_task);
     res.status(201).json(new_task);
-})
+});
 
 // get task by id
 app.get('/tasks/:id', (req, res) => {
-    const { id } = req.params;
+    const id = validateId(req, res);
+    if (!id) return;
 
-    const task = tasks.find(t => t.id === parseInt(id));
+    const task = tasks.find(t => t.id === id);
 
     if (!task) {
-        res.status(404).json({ error: `cannot find task with id ${id}`});
+        res.status(404).json({ message: `cannot find task with id ${id}`});
     };
 
     res.json(task);
 });
 
 // list tasks
-app.get('/tasks', (req, res) => res.json(tasks))
+app.get('/tasks', (req, res) => res.json(tasks));
 
 // update task status
 app.put('/tasks/:id', (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
+    const id = validateId(req, res);
+    if (!id) return;   
+
+    const status = validateStatus(req, res);
+    if (!status) return;
     
-    const task = tasks.find(t => t.id === parseInt(id));
+    const task = tasks.find(t => t.id === id);
 
     if (!task) {
         res.status(404).json({ error: `cannot find task with id ${id}`});
@@ -69,13 +64,14 @@ app.put('/tasks/:id', (req, res) => {
     task.status = status;
     res.json(task);
 
-})
+});
 
 // delete task;
 app.delete('/tasks/:id', (req, res) => {
-    const { id } = req.params;
+    const id = validateId(req, res);
+    if (!id) return;
 
-    const index = tasks.findIndex(task => task.id === parseInt(id));
+    const index = tasks.findIndex(task => task.id === id);
     
     if (index === -1) {
         res.status(404).json({ error: `cannot find task with id ${id}`});
@@ -84,6 +80,6 @@ app.delete('/tasks/:id', (req, res) => {
     const deleted_task = tasks.splice(index, 1);
     res.json(deleted_task);
 
-})
+});
 
 app.listen(port, () => console.log(`server running on port ${port}`));
