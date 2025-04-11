@@ -1,84 +1,109 @@
 const express = require("express");
 const cors = require("cors");
+
 const {
     validateCreateRequest,
     validateId,
     validateStatus
 } = require('./validation');
 
+const sequelize = require('./database/sequelize')
+const Task = require('./database/models/task')
+
 // initialise express
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// temp in-memory database
-let tasks = [];
-let current_id = 1;
+// sync database
+sequelize.sync()
+    .then(() => {
+        console.log('database synced successfully');
+    })
+    .catch((error) => {
+        console.error('error syncing database:', error);
+    });
+
 
 // create task
-app.post('/', (req, res) => {
+app.post('/tasks', async (req, res) => {
     const payload = validateCreateRequest(req, res);
     if (!payload) return;
 
-    const new_task = {
-        ...payload,
-        id: current_id++
+    try {
+        const new_task = await Task.create(payload);
+        res.status(201).json(new_task);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     };
-
-    tasks.push(new_task);
-    res.status(201).json(new_task);
 });
 
 // get task by id
-app.get('/tasks/:id', (req, res) => {
+app.get('/tasks/:id', async (req, res) => {
     const id = validateId(req, res);
     if (!id) return;
 
-    const task = tasks.find(t => t.id === id);
-
-    if (!task) {
-        return res.status(404).json({ message: `cannot find task with id ${id}`});
+    try {
+        const task = await Task.findByPk(id);
+        if (!task) {
+            return res.status(404).json({ message: `cannot find task with id ${id}` });
+        };
+        res.status(200).json(task)
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     };
-
-    res.json(task);
 });
 
 // list tasks
-app.get('/tasks', (req, res) => res.json(tasks));
+app.get('/tasks', async (req, res) => {
+    try {
+        const tasks = await Task.findAll();
+        res.status(200).json(tasks);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // update task status
-app.put('/tasks/:id', (req, res) => {
+app.put('/tasks/:id', async (req, res) => {
     const id = validateId(req, res);
-    if (!id) return;   
+    if (!id) return;
 
     const status = validateStatus(req, res);
     if (!status) return;
-    
-    const task = tasks.find(t => t.id === id);
 
-    if (!task) {
-        return res.status(404).json({ message: `cannot find task with id ${id}`});
+    try {
+        const task = await Task.findByPk(id);
+        if (!task) {
+            return res.status(404).json({ message: `cannot find task with id ${id}` });
+        };
+
+        task.status = status;
+        await task.save()
+        res.status(200).json(task);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     };
-
-    task.status = status;
-    res.json(task);
 
 });
 
 // delete task;
-app.delete('/tasks/:id', (req, res) => {
+app.delete('/tasks/:id', async (req, res) => {
     const id = validateId(req, res);
     if (!id) return;
 
-    const index = tasks.findIndex(task => task.id === id);
-    
-    if (index === -1) {
-        return res.status(404).json({ message: `cannot find task with id ${id}`});
+    try {
+        const task = await Task.findByPk(id);
+        if (!task) {
+            return res.status(404).json({ message: `cannot find task with id ${id}` });
+        };
+
+        await task.destroy();
+        res.status(204).end();
+    } catch (error) {
+        res.status(500).json({ message: error.message });
     };
-
-    const deleted_task = tasks.splice(index, 1)[0];
-    res.json(deleted_task);
-
 });
 
 module.exports = app;

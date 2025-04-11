@@ -1,14 +1,24 @@
 const request = require('supertest');
 const { expect } = require('chai');
 const app = require('../app');
+const Task = require('../database/models/task')
 
 describe('API routes', () => {
     let taskId;
 
+    before(async () => {
+        // start with fresh/empty database each time
+        await Task.destroy({
+            where: {},
+            truncate: true,
+            restartIdentity: true
+        });
+    });
+
     describe('create task', () => {
         it('should create a task with valid data', async () => {
             const res = await request(app)
-                .post('/')
+                .post('/tasks')
                 .send({
                     title: 'Test task',
                     description: 'Some details',
@@ -23,7 +33,7 @@ describe('API routes', () => {
 
         it('should reject a task with missing title', async () => {
             const res = await request(app)
-                .post('/')
+                .post('/tasks')
                 .send({
                     description: 'No title',
                     status: 'Not started',
@@ -39,7 +49,7 @@ describe('API routes', () => {
     describe('get task by id', () => {
         it('should return a task by id', async () => {
             const newTask = await request(app)
-                .post('/')
+                .post('/tasks')
                 .send({
                     title: 'a task',
                     description: '',
@@ -65,7 +75,7 @@ describe('API routes', () => {
 
             for (let i = 1; i <= 8; i++) {
                 await request(app)
-                    .post('/')
+                    .post('/tasks')
                     .send({
                         title: `task ${i}`,
                         description: 'Some details',
@@ -100,7 +110,7 @@ describe('API routes', () => {
     describe('delete task', () => {
         it('should delete task', async () => {
             const res = await request(app).delete(`/tasks/${taskId}`);
-            expect(res.body.id).to.equal(taskId);
+            expect(res.statusCode).to.equal(204);
 
             const missing_res = await request(app).get(`/tasks/${taskId}`);
             expect(missing_res.statusCode).to.equal(404);
