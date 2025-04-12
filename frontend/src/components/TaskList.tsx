@@ -1,20 +1,14 @@
 import { Table, CloseButton } from '@mantine/core'
 import { Task } from '../types'
 import api from '../api'
-import { useEffect, useState } from 'react'
 import SelectStatus from './SelectStatus'
 
-const TaskList = () => {
-    const [tasks, setTasks] = useState<Task[]>([])
+interface TaskListProps {
+    tasks: Task[],
+    setTasks: React.Dispatch<React.SetStateAction<Task[]>>
+}
 
-    useEffect(() => {
-        const fetchTasks = async () => {
-            const response = await api.listTasks();
-            setTasks(response)
-        }
-
-        fetchTasks()
-    }, [])
+const TaskList = ({ tasks, setTasks }: TaskListProps) => {
 
     const handleDelete = async (id: number) => {
         await api.deleteTask(id);
@@ -22,7 +16,7 @@ const TaskList = () => {
     }
 
     const table_rows = tasks.map(t => (
-        <Table.Tr key={t.id}>
+        <Table.Tr key={t.id} onClick={() => console.log(t)}>
             <Table.Td>{t.title}</Table.Td>
             {/* <Table.Td>{t.description}</Table.Td> */}
             <Table.Td>

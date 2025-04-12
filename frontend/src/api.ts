@@ -1,12 +1,19 @@
 import axios from "axios";
-import { StatusStates, CreateArgs, Task } from "./types";
+import { StatusStates, UnparsedTask, NewTask, Task } from "./types";
 
 const base_url = 'http://localhost:3000/tasks';
 
-const createTask = async (args: CreateArgs): Promise<Task> => {
+const parseTask = (task: UnparsedTask): Task => {
+    return {
+        ...task,
+        due_date: new Date(task.due_date)
+    }
+}
+
+const createTask = async (args: NewTask): Promise<Task> => {
     try {
         const response = await axios.post(`${base_url}`, args);
-        return response.data
+        return parseTask(response.data)
     } catch (error) {
         console.error('Error creating task:', error);
         throw error;
@@ -16,7 +23,7 @@ const createTask = async (args: CreateArgs): Promise<Task> => {
 const getTask = async (id: number): Promise<Task> => {
     try {
         const response = await axios.get(`${base_url}/${id}`);
-        return response.data
+        return parseTask(response.data)
     } catch (error) {
         console.error(`Error getting task with id ${id}`, error)
         throw error
@@ -26,7 +33,9 @@ const getTask = async (id: number): Promise<Task> => {
 const listTasks = async (): Promise<Task[]> => {
     try {
         const response = await axios.get(`${base_url}`);
-        return response.data.sort((a: Task, b: Task) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+        return response.data
+            .map(parseTask)
+            .sort((a: Task, b: Task) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
     } catch (error) {
         console.error('Error fetching tasks:', error);
         throw error;
@@ -36,7 +45,7 @@ const listTasks = async (): Promise<Task[]> => {
 const updateTask = async (id: number, status: StatusStates): Promise<Task> => {
     try {
         const response = await axios.put(`${base_url}/${id}`, { status });
-        return response.data;
+        return parseTask(response.data);
     } catch (error) {
         console.error('Error updating task:', error);
         throw error;
@@ -59,6 +68,3 @@ export default {
     updateTask,
     deleteTask
 }
-
-
-

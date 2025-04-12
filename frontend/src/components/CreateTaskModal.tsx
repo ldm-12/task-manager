@@ -1,34 +1,88 @@
-import { useDisclosure, useCounter } from '@mantine/hooks';
-import { Modal, Button, Group, Text, Badge } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { Modal, Button, TextInput, Textarea, Group } from '@mantine/core';
+import { DateInput } from '@mantine/dates'
+import { useForm } from '@mantine/form';
 
-function CreateTaskModal() {
-  const [opened, { close, open }] = useDisclosure(false);
-  const [count, { increment, decrement }] = useCounter(3, { min: 0 });
+import SelectStatus from './SelectStatus';
+import { useState } from 'react';
 
-  const badges = Array(count)
-    .fill(0)
-    .map((_, index) => <Badge key={index}>Badge {index}</Badge>);
+import api from '../api';
+import { Task } from '../types';
 
-  return (
-    <>
-      <Modal opened={opened} onClose={close} size="auto" title="Modal size auto">
-        <Text>Modal with size auto will fits its content</Text>
 
-        <Group wrap="nowrap" mt="md">
-          {badges}
-        </Group>
+type CreateFormProps = {
+    handleSubmit: (values: any) => void,
+    loading: boolean
+}
 
-        <Group mt="xl">
-          <Button onClick={increment}>Add badge</Button>
-          <Button onClick={decrement}>Remove badge</Button>
-        </Group>
-      </Modal>
+const CreateForm = ({ handleSubmit, loading }: CreateFormProps) => {
+    const form = useForm({
+        mode: 'uncontrolled',
+        initialValues: {
+            title: '',
+            description: '',
+            status: 'Not started',
+            due_date: undefined
+        },        
+        validate: {
+            title: (value) => value.length > 0 ? null : 'Title required',
+            due_date: (value) => value ? null : 'Due date required', 
+        }
+    })
 
-      <Button variant="default" onClick={open}>
-        Open modal
-      </Button>
-    </>
-  );
+    return (
+        <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
+            <TextInput
+                withAsterisk
+                label="Title"
+                {...form.getInputProps('title')}
+            />
+            <Textarea
+                label="Description (optional)"
+                {...form.getInputProps('description')}
+            />
+            <SelectStatus form_props={form.getInputProps('status')} />
+            <DateInput
+                withAsterisk
+                label="Due date"
+                {...form.getInputProps('due_date')}
+            />
+            <Group justify="flex-end" mt="md">
+                <Button type="submit" loading={loading}>Create</Button>
+            </Group>
+        </form>
+    )
+
+}
+
+function CreateTaskModal({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<Task[]>> }) {
+    const [opened, { close, open }] = useDisclosure(false);
+    const [loading, setLoading] = useState(false)
+    
+    const handleSubmit = async (values: any) => {
+        setLoading(true)
+        try {
+            const response = await api.createTask(values)
+            setTasks((prev) => prev.concat(response))
+            close()
+        } catch (error) {
+            console.error('error creating task:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <>
+            <Modal opened={opened} onClose={close} title="Create New Task">
+                <CreateForm handleSubmit={handleSubmit} loading={loading} />
+            </Modal>
+
+            <Button variant="primary" onClick={open}>
+                + New Task
+            </Button>
+        </>
+    );
 }
 
 export default CreateTaskModal
