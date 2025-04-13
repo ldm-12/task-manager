@@ -1,47 +1,69 @@
-import { Select } from '@mantine/core'
+import { Combobox, useCombobox, UnstyledButton, Group } from '@mantine/core'
 import { useState, useEffect } from 'react';
-import { StatusStates, Task } from '../types';
+import { StatusTypes } from '../types';
+import { IconChevronDown } from '@tabler/icons-react';
+import StatusBadge from './StatusBadge';
 
 type Props = {
-    // props for dropdown menu in table
-    task?: Task,
-    onSelect?: (value: StatusStates) => void
-
-    // for dropdown menu in create form
-    is_form?: boolean
-    form_props?: any
+    status: StatusTypes,
+    onSelect: (value: StatusTypes) => void
 }
 
-const SelectStatus = ({ task, onSelect, is_form, form_props }: Props) => {
-    const [value, setValue] = useState<StatusStates | undefined>(undefined)
+const SelectStatus = ({ status, onSelect }: Props) => {
+    const combobox = useCombobox({
+        onDropdownClose: () => combobox.resetSelectedOption(),
+    });
+
+    const [value, setValue] = useState<StatusTypes>(status)
 
     useEffect(() => {
-        if (task?.status) {
-            setValue(task.status);
+        if (status) {
+            setValue(status);
         }
-    }, [task]);
+    }, [status]);
 
-    const options = [
+    const options = ([
         "Not started",
         "In progress",
         "Complete",
         "Blocked"
-    ];
+    ] as StatusTypes[]).map(option => (
+            <Combobox.Option value={option} key={option}>
+                <StatusBadge status={option} />
+            </Combobox.Option>
+        ))
 
-    const handleSelect = (new_value: StatusStates) => {
-        onSelect && onSelect(new_value)
+    const handleSelect = (new_value: StatusTypes) => {
+        onSelect(new_value)
         setValue(new_value)
+        combobox.closeDropdown();
     }
 
     return (
-        <Select
-            withAsterisk={is_form}
-            value={value}
-            label={is_form && "Status"}
-            data={options}
-            onChange={(val) => handleSelect(val as StatusStates)}
-            {...form_props}
-        />
+        <Combobox
+            store={combobox}
+            onOptionSubmit={(val) => handleSelect(val as StatusTypes)}
+        >
+            <Combobox.Target>
+                <UnstyledButton
+                    onClick={() => combobox.toggleDropdown()}
+                    style={{
+                        width: '80%',
+                    }}
+                >
+                    <Group gap="xs">
+                        {value && (
+                            <StatusBadge status={value} />
+                        )}
+                        <IconChevronDown size="1rem" stroke={1.5} />
+                    </Group>
+                </UnstyledButton>
+            </Combobox.Target>
+
+            <Combobox.Dropdown style={{ width: '100%' }}>
+                <Combobox.Options>{options}</Combobox.Options>
+            </Combobox.Dropdown>
+        </Combobox>
     )
 
 }

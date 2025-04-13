@@ -1,5 +1,5 @@
 import axios from "axios";
-import { StatusStates, UnparsedTask, NewTask, Task } from "./types";
+import { StatusTypes, UnparsedTask, NewTask, Task } from "./types";
 
 const base_url = 'http://localhost:3000/tasks';
 
@@ -42,7 +42,7 @@ const listTasks = async (): Promise<Task[]> => {
     }
 };
 
-const updateTask = async (id: number, status: StatusStates): Promise<Task> => {
+const updateTask = async (id: number, status: StatusTypes): Promise<Task> => {
     try {
         const response = await axios.put(`${base_url}/${id}`, { status });
         return parseTask(response.data);

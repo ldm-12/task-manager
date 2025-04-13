@@ -1,7 +1,7 @@
-import { Table, CloseButton } from '@mantine/core'
-import { Task } from '../types'
+import { Table } from '@mantine/core'
+import { StatusTypes, Task } from '../types'
 import api from '../api'
-import SelectStatus from './SelectStatus'
+import TaskRow from './TaskRow'
 
 interface TaskListProps {
     tasks: Task[],
@@ -15,18 +15,13 @@ const TaskList = ({ tasks, setTasks }: TaskListProps) => {
         setTasks(prev => prev.filter(task => task.id !== id))
     }
 
-    const table_rows = tasks.map(t => (
-        <Table.Tr key={t.id} onClick={() => console.log(t)}>
-            <Table.Td>{t.title}</Table.Td>
-            {/* <Table.Td>{t.description}</Table.Td> */}
-            <Table.Td>
-                <SelectStatus task={t} />
-            </Table.Td>
-            <Table.Td>{new Date(t.due_date).toDateString()}</Table.Td>
-            <Table.Td>
-                <CloseButton onClick={() => handleDelete(t.id)} />
-            </Table.Td>
-        </Table.Tr>
+    const handleUpdate = async (id: number, status: StatusTypes) => {
+        const response = await api.updateTask(id, status)
+        setTasks(prev => prev.map(task => task.id === id ? response : task))
+    }
+
+    const table_rows = tasks.map(task => (
+        <TaskRow key={task.id} task={task} handleDelete={handleDelete} handleUpdate={handleUpdate}/>
     ))
 
     return (

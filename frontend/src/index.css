@@ -66,3 +66,31 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.delete-task-button {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: background-color 0.2s ease;
+}
+
+.delete-task-button:hover,
+.delete-task-button:focus,
+.delete-task-button:focus-visible,
+.delete-task-button:active {
+  border: none !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: #ffe5e5 !important;
+}
+
+.delete-task-icon {
+  color: grey;
+  transition: color 0.2s ease;
+}
+
+.delete-task-button:hover .delete-task-icon {
+  color: red;
+}

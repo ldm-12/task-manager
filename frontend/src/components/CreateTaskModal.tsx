@@ -7,7 +7,7 @@ import SelectStatus from './SelectStatus';
 import { useState } from 'react';
 
 import api from '../api';
-import { Task } from '../types';
+import { StatusTypes, Task } from '../types';
 
 
 type CreateFormProps = {
@@ -41,7 +41,7 @@ const CreateForm = ({ handleSubmit, loading }: CreateFormProps) => {
                 label="Description (optional)"
                 {...form.getInputProps('description')}
             />
-            <SelectStatus form_props={form.getInputProps('status')} />
+            <SelectStatus status={form.getValues().status as StatusTypes} onSelect={(status) => form.setFieldValue('status', status)} />
             <DateInput
                 withAsterisk
                 label="Due date"

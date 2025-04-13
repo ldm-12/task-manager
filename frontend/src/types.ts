@@ -1,10 +1,10 @@
-export type StatusStates = "Not started" | "In progress" | "Complete" | "Blocked"
+export type StatusTypes = "Not started" | "In progress" | "Complete" | "Blocked"
 
 
 interface BaseTask {
     title: string;
     description: string;
-    status: StatusStates;
+    status: StatusTypes;
     id: number;
     createdAt: string;
     updatedAt: string;
