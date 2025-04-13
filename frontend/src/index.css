@@ -94,3 +94,14 @@ button:focus-visible {
 .delete-task-button:hover .delete-task-icon {
   color: red;
 }
+
+.task-description {
+	background-color: #f2f2f2;
+	padding: 5px 10px;
+	border-radius: 10px;
+	color: #404040;
+}
+
+.select-status-label {
+  font-size: var(--mantine-font-size-sm)
+}

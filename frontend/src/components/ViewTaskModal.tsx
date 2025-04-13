@@ -1,26 +1,17 @@
-import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, Badge } from '@mantine/core';
+import { Modal, Group } from '@mantine/core';
 import { Task } from '../types'
 import StatusBadge from './StatusBadge';
 
-const ViewTaskModal = ({ task }: { task: Task }) => {
-  const [opened, { open, close }] = useDisclosure(false);
+const ViewTaskModal = ({ task, opened, close }: { task: Task, opened: boolean, close: () => void }) => {
 
   return (
-    <>
-      <Modal opened={opened} onClose={close} title={task.title}>
-        <h4>Description</h4>
-        <p>{task.description}</p>
-        <div>
-          <StatusBadge status={task.status} />
-        </div>
-
-      </Modal>
-
-      <Button variant="default" onClick={open}>
-        Open modal
-      </Button>
-    </>
+    <Modal opened={opened} onClose={close} title={<h3>{task.title}</h3>}>
+      <Group justify="space-between">
+        <span>Status: <StatusBadge status={task.status} /></span>
+        <p>Due: <i>{task.due_date.toDateString()}</i></p>
+      </Group>
+      <p className='task-description'>{task.description || 'No description provided'}</p>
+    </Modal>
   );
 }
 

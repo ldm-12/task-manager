@@ -1,5 +1,5 @@
 import { useDisclosure } from '@mantine/hooks';
-import { Modal, Button, TextInput, Textarea, Group } from '@mantine/core';
+import { Modal, Button, TextInput, Textarea, Group, Stack } from '@mantine/core';
 import { DateInput } from '@mantine/dates'
 import { useForm } from '@mantine/form';
 
@@ -23,33 +23,38 @@ const CreateForm = ({ handleSubmit, loading }: CreateFormProps) => {
             description: '',
             status: 'Not started',
             due_date: undefined
-        },        
+        },
         validate: {
             title: (value) => value.length > 0 ? null : 'Title required',
-            due_date: (value) => value ? null : 'Due date required', 
+            due_date: (value) => value ? null : 'Due date required',
         }
     })
 
     return (
         <form onSubmit={form.onSubmit((values) => handleSubmit(values))}>
-            <TextInput
-                withAsterisk
-                label="Title"
-                {...form.getInputProps('title')}
-            />
-            <Textarea
-                label="Description (optional)"
-                {...form.getInputProps('description')}
-            />
-            <SelectStatus status={form.getValues().status as StatusTypes} onSelect={(status) => form.setFieldValue('status', status)} />
-            <DateInput
-                withAsterisk
-                label="Due date"
-                {...form.getInputProps('due_date')}
-            />
-            <Group justify="flex-end" mt="md">
-                <Button type="submit" loading={loading}>Create</Button>
-            </Group>
+            <Stack>
+                <TextInput
+                    withAsterisk
+                    label="Title"
+                    {...form.getInputProps('title')}
+                />
+                <Textarea
+                    label="Description (optional)"
+                    {...form.getInputProps('description')}
+                />
+                <Stack gap="5px">
+                    <label className="select-status-label">Status</label>
+                    <SelectStatus status={form.getValues().status as StatusTypes} onSelect={(status) => form.setFieldValue('status', status)} />
+                </Stack>
+                <DateInput
+                    withAsterisk
+                    label="Due date"
+                    {...form.getInputProps('due_date')}
+                />
+                <Group justify="flex-end" mt="md">
+                    <Button type="submit" loading={loading}>Create</Button>
+                </Group>
+            </Stack>
         </form>
     )
 
@@ -58,7 +63,7 @@ const CreateForm = ({ handleSubmit, loading }: CreateFormProps) => {
 function CreateTaskModal({ setTasks }: { setTasks: React.Dispatch<React.SetStateAction<Task[]>> }) {
     const [opened, { close, open }] = useDisclosure(false);
     const [loading, setLoading] = useState(false)
-    
+
     const handleSubmit = async (values: any) => {
         setLoading(true)
         try {
@@ -74,7 +79,7 @@ function CreateTaskModal({ setTasks }: { setTasks: React.Dispatch<React.SetState
 
     return (
         <>
-            <Modal opened={opened} onClose={close} title="Create New Task">
+            <Modal opened={opened} onClose={close} title={<h3>Create New Task</h3>}>
                 <CreateForm handleSubmit={handleSubmit} loading={loading} />
             </Modal>
 
