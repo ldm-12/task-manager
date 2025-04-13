@@ -1,54 +1,38 @@
-# React + TypeScript + Vite
+## Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a single-page TypeScript application built with React, using Vite for fast development and build times. The UI is styled with the Mantine UI library.
 
-Currently, two official plugins are available:
+The frontend provides a user interface for interacting with the [backend API](../backend/README.md), allowing users to manage tasks via the following features:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+###  Features
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Feature            | Description                                                                 |
+|--------------------|-----------------------------------------------------------------------------|
+| View Tasks         | Fetches and displays a list of all tasks from the backend. Click on a task in the list to expand and view its description. |
+| Create Task        | Form to add a new task with a title, optional description, status, and due date. |
+| Update Task Status | Dropdown to update the status of a task (`Not started`, `In progress`, `Completed`, `Blocked`). |
+| Delete Task        | Allows deleting a task from the task list.                                  |
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Stack
+- **React**: Core frontend framework
+- **Vite**: Fast development/build tooling
+- **Mantine**: UI components and styling
+- **TypeScript**: Type safety and better DX
+- **Axios**: API requests to the backend
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+### Running the Frontend
+For any tasks to display you will need to make sure the backend is running first.
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
 ```
