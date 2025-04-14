@@ -26,6 +26,11 @@ The frontend provides a user interface for interacting with the [backend API](..
 
 ---
 
+### Folder structure
+- The `src/components` contains the React components I have made.
+- The file `src/api.js` in the root folder handles all requests to the API endpoints set up in the backend using Axios.
+- There are some custom classes I've added to `src/index.css` for some simple styling of the webpage, specifically the `delete-task-button`, `delete-task-icon` and `task-description` classes.
+
 ### Running the Frontend
 For any tasks to display you will need to make sure the backend is running first.
 
